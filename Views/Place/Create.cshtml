@@ -1,0 +1,160 @@
+﻿@model AstrakhanExcursions.Models.Place
+
+@{
+    Layout = "_Layout";
+    var userId = ViewData["UserId"];
+}
+
+<div class="form-container">
+    <h2 class="text-center">Создание места</h2>
+    <form id="placeForm" action="/Place/Create" method="post" enctype="multipart/form-data">
+        <div class="form-group">
+            <label for="Name">Название</label>
+            <input type="text" class="form-control" id="Name" name="Name" placeholder="Введите название места" required>
+        </div>
+        <div class="form-group">
+            <label for="Description">Описание</label>
+            <textarea class="form-control" id="Description" name="Description" placeholder="Введите описание места" required></textarea>
+        </div>
+
+        <div class="form-group">
+            <label>Выберите местоположение на карте</label>
+            <div id="map" style="width: 100%; height: 400px;"></div>
+        </div>
+
+        <div class="form-group">
+            <input type="hidden" class="form-control" id="Latitude" name="Latitude" required>
+        </div>
+        <div class="form-group">
+            <input type="hidden" class="form-control" id="Longitude" name="Longitude" required>
+        </div>
+
+        <div class="form-group">
+            <label for="Image">Загрузка изображения</label>
+            <input type="file" class="form-control" id="Image" name="Image" accept="image/jpeg, image/png" required>
+        </div>
+        <div class="form-group">
+            <input type="hidden" name="userId" id="userId" value="@userId">
+        </div>
+        <button type="submit" class="btn btn-primary">Создать место</button>
+    </form>
+</div>
+
+<!-- Модальное окно результата операции -->
+<div id="resultOperation" class="modal">
+    <div class="modal-content">
+        <span class="close" onclick="closeResultOperation()">&times;</span>
+        <h2 id="resultOperationTitle"></h2>
+    </div>
+</div>
+
+<script src="https://api-maps.yandex.ru/2.1/?lang=ru_RU&apikey=ваш_api_ключ" type="text/javascript"></script>
+<script>
+    var myPlacemark;
+    var myMap;
+
+    ymaps.ready(init);
+
+    function init() {
+        myMap = new ymaps.Map('map', {
+            center: [46.347616, 48.030175], // Координаты центра карты (Астрахань)
+            zoom: 12
+        });
+
+        // Слушаем клик на карте
+        myMap.events.add('click', function (e) {
+            var coords = e.get('coords');
+
+            // Преобразуем координаты в строки с запятой в качестве разделителя
+            var latitudeStr = coords[0].toString().replace('.', ',');
+            var longitudeStr = coords[1].toString().replace('.', ',');
+
+            // Устанавливаем координаты в скрытые поля формы
+            document.getElementById('Latitude').value = latitudeStr;
+            document.getElementById('Longitude').value = longitudeStr;
+
+            // Выводим координаты в консоль
+            console.log('Широта:', latitudeStr);
+            console.log('Долгота:', longitudeStr);
+
+            // Если метка уже существует, перемещаем её
+            if (myPlacemark) {
+                myPlacemark.geometry.setCoordinates(coords);
+            }
+            // Если нет, создаем новую метку
+            else {
+                myPlacemark = new ymaps.Placemark(coords, {}, {
+                    preset: 'islands#redDotIcon',
+                    draggable: true
+                });
+                myMap.geoObjects.add(myPlacemark);
+
+                // Обработчик события перетаскивания метки
+                myPlacemark.events.add('dragend', function () {
+                    var newCoords = myPlacemark.geometry.getCoordinates();
+                    var newLatitudeStr = newCoords[0].toString().replace('.', ',');
+                    var newLongitudeStr = newCoords[1].toString().replace('.', ',');
+
+                    document.getElementById('Latitude').value = newLatitudeStr;
+                    document.getElementById('Longitude').value = newLongitudeStr;
+
+                    // Выводим новые координаты в консоль
+                    console.log('Новая широта:', newLatitudeStr);
+                    console.log('Новая долгота:', newLongitudeStr);
+                });
+            }
+        });
+    }
+
+    document.getElementById('placeForm').addEventListener('submit', function (event) {
+        var latitude = document.getElementById('Latitude').value;
+        var longitude = document.getElementById('Longitude').value;
+
+        // Выводим координаты для отправки в консоль
+        console.log('Широта для отправки:', latitude);
+        console.log('Долгота для отправки:', longitude);
+    });
+
+    document.addEventListener('DOMContentLoaded', function () {
+        var message = @Html.Raw(Newtonsoft.Json.JsonConvert.SerializeObject(ViewData["Message"] ?? ""));
+
+        if (message && message.trim().length > 0) {
+            document.getElementById('resultOperationTitle').textContent = message;
+            document.getElementById('resultOperation').style.display = 'block';
+        }
+    });
+
+    function closeResultOperation() {
+        document.getElementById('resultOperation').style.display = 'none';
+    }
+</script>
+
+<style>
+    .modal {
+        display: none;
+        position: fixed;
+        z-index: 1000;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0,0,0,0.5);
+    }
+
+    .modal-content {
+        background-color: #fff;
+        margin: 15% auto;
+        padding: 20px;
+        border: 1px solid #888;
+        width: 80%;
+        max-width: 500px;
+    }
+
+    .close {
+        color: #aaa;
+        float: right;
+        font-size: 28px;
+        font-weight: bold;
+        cursor: pointer;
+    }
+</style>

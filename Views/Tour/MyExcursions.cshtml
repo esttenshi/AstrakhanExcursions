@@ -1,0 +1,298 @@
+﻿@{
+    Layout = "_Layout";
+    ViewData["Title"] = "Мои маршруты";
+    var tours = ViewData["Tours"] as List<TourViewModel>;
+    var userId = ViewData["UserId"];
+}
+
+<div class="form-container">
+    <input type="text" id="searchInputMyExcursions" placeholder="Поиск по тегам, названию или описанию" onkeyup="searchTours()" class="form-control mb-3">
+    @if (tours != null && tours.Any())
+    {
+        @foreach (var tour in tours)
+        {
+            var tags = string.Join(" ", tour.Tags);
+            <div class="card my-excursion-card"
+                 data-title="@tour.Tour.Title.ToLower()"
+                 data-description="@tour.Tour.Description.ToLower()"
+                 data-tags="@tags.ToLower()">
+                <div class="card-body">
+                    <h5 class="card-title">@tour.Tour.Title</h5>
+                    <p class="card-text">@tour.Tour.Description</p>
+                    <ul>
+                        @foreach (var tag in tour.Tags)
+                        {
+                            <li class="my-excursion-tag-item">@tag</li>
+                        }
+                    </ul>
+                    <button class="btn btn-primary my-excursion-toggle-places" onclick="togglePlaces(this)">Показать места</button>
+                    <div class="my-excursion-places" style="display: none;">
+                        <ul>
+                            @foreach (var place in tour.Places)
+                            {
+                                <li>@place</li>
+                            }
+                        </ul>
+                    </div>
+                    <button class="btn btn-primary my-excursion-toggle-places" onclick="openEditModal(@tour.Tour.TourId)">Редактировать</button>
+                    <button type="button" class="btn btn-danger" onclick="openDeleteModal(@tour.Tour.TourId)">Удалить</button>
+                </div>
+            </div>
+        }
+    }
+    else
+    {
+        <p>Вы ещё не создавали экскурсий</p>
+    }
+</div>
+
+<!-- Модальное окно результата операции -->
+<div id="resultOperation" class="modal">
+    <div class="modal-content">
+        <span class="close" onclick="closeResultOperation()">&times;</span>
+        <h2 id="resultOperationTitle"></h2>
+    </div>
+</div>
+
+<!-- Скрипт для инициализации модального окна результата операции  и его закрытия -->
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        var message = @Html.Raw(Newtonsoft.Json.JsonConvert.SerializeObject(TempData["Message"] ?? ""));
+        if (message && message.trim().length > 0) {
+            document.getElementById('resultOperationTitle').textContent = message;
+            document.getElementById('resultOperation').style.display = 'block';
+        }
+    });
+    function closeResultOperation() {
+        document.getElementById('resultOperation').style.display = 'none';
+    }
+</script>
+
+<!-- Модальное окно для редактирования экскурсии -->
+<div id="editModal" class="modalEdit">
+    <div class="modal-contentEdit">
+        <span class="close" onclick="closeEditModal()" style="position: absolute; top: 8px; right: 12px; font-size: 24px; font-weight: bold; cursor: pointer;">&times;</span>
+        <h2 id="editModalTitle" style="margin: 0; padding: 0; text-align: center;">Редактировать экскурсию</h2>
+        <form id="editForm" action="/Tour/Edit" method="post" onsubmit="prepareTagsForSubmit()">
+            <input type="hidden" name="userId" id="userId" value="@userId">
+            <input type="hidden" name="tourId" id="editTourId">
+            <div class="form-group">
+                <label for="editTitle">Название</label>
+                <input type="text" class="form-control" id="editTitle" name="title" required>
+            </div>
+            <div class="form-group">
+                <label for="editDescription">Описание</label>
+                <textarea class="form-control" id="editDescription" name="description" required></textarea>
+            </div>
+            <div class="form-group">
+                <label>Места для тура</label>
+                <input type="text" id="editSearch" class="form-control" placeholder="Поиск мест..." onkeyup="filterEditPlaces()">
+                <div class="places-container" id="editPlacesContainer">
+                    @foreach (var place in ViewData["Places"] as List<AstrakhanExcursions.Models.Place>)
+                    {
+                        <div class="place-card" data-name="@place.Name" data-description="@place.Description">
+                            <img src="@Url.Content(place.ImageUrl)" alt="@place.Name">
+                            <div class="place-info">
+                                <h5>@place.Name</h5>
+                                <p>@place.Description</p>
+                            </div>
+                            <div class="checkbox-container">
+                                <input type="checkbox" name="selectedPlaceIds" value="@place.PlaceId">
+                            </div>
+                        </div>
+                    }
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="editTagInput">Добавить тег</label>
+                <div style="display:flex; gap:10px;">
+                    <input type="text" id="editTagInput" class="form-control" placeholder="Введите тег">
+                    <button type="button" class="btn btn-secondary" onclick="addEditTag()">Добавить</button>
+                </div>
+                <div id="editTagsList" style="margin-top:10px;"></div>
+            </div>
+            <input type="hidden" id="editTagsInput" name="tagsInput" value="">
+            <button type="submit" class="btn btn-primary">Сохранить изменения</button>
+        </form>
+    </div>
+</div>
+
+<!-- Модальное окно для удаления экскурсии -->
+<div id="deleteModal" class="modal">
+    <div class="modal-content">
+        <span class="close" onclick="closeDeleteModal()" style="position: absolute; top: 8px; right: 12px; font-size: 24px; font-weight: bold; cursor: pointer;">&times;</span>
+        <h2 id="deleteModalTitle";">Вы уверены, что хотите удалить экскурсию?</h2>
+        <button id="confirmDeleteButton" class="btn btn-danger">Подтвердить</button>
+    </div>
+</div>
+
+<!-- Скрипт для удаления экскурсии -->
+<script>
+    let tourIdToDelete;
+    let tourIdToEdit;
+    let editTags = [];
+
+    function openDeleteModal(tourId) {
+        tourIdToDelete = tourId;
+        document.getElementById("deleteModal").style.display = "block";
+    }
+
+    function closeDeleteModal() {
+        document.getElementById("deleteModal").style.display = "none";
+    }
+
+    document.getElementById("confirmDeleteButton").onclick = function () {
+        const form = document.createElement("form");
+        form.method = "post";
+        form.action = "/Tour/Delete";
+
+        const inputId = document.createElement("input");
+        inputId.type = "hidden";
+        inputId.name = "id";
+        inputId.value = tourIdToDelete;
+        form.appendChild(inputId);
+
+        const inputUserId = document.createElement("input");
+        inputUserId.type = "hidden";
+        inputUserId.name = "userId";
+        inputUserId.value = @userId;
+        form.appendChild(inputUserId);
+
+        document.body.appendChild(form);
+        form.submit();
+    };
+</script>
+
+<!-- Скрипт для редактирования экскурсии -->
+<script>
+    function openEditModal(tourId) {
+        tourIdToEdit = tourId;
+        fetch(`/Tour/GetTourDetails?tourId=${tourIdToEdit}`)
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                return response.json();
+            })
+            .then(data => {
+                document.getElementById("editTourId").value = data.tourId;
+                document.getElementById("editTitle").value = data.title;
+                document.getElementById("editDescription").value = data.description;
+                editTags = data.tags;
+                renderEditTags();
+
+                const selectedPlaceIds = data.selectedPlaceIds;
+                const checkboxes = document.querySelectorAll('#editPlacesContainer input[type="checkbox"]');
+                checkboxes.forEach(checkbox => {
+                    if (selectedPlaceIds.includes(parseInt(checkbox.value))) {
+                        checkbox.checked = true; 
+                    } else {
+                        checkbox.checked = false; 
+                    }
+                });
+                document.getElementById("editModal").style.display = "block";
+            })
+            .catch(error => {
+                console.error("Ошибка при получении данных экскурсии:", error);
+            });
+    }
+
+    function closeEditModal() {
+        document.getElementById("editModal").style.display = "none";
+    }
+
+    function addEditTag() {
+        const input = document.getElementById('editTagInput');
+        const tag = input.value.trim();
+
+        if (tag === '') {
+            alert('Введите тег');
+            return;
+        }
+
+        if (editTags.includes(tag.toLowerCase())) {
+            input.value = '';
+            return;
+        }
+
+        editTags.push(tag.toLowerCase());
+        input.value = '';
+        renderEditTags();
+    }
+
+    function removeEditTag(index) {
+        editTags.splice(index, 1);
+        renderEditTags();
+    }
+
+    function renderEditTags() {
+        const tagsList = document.getElementById('editTagsList');
+        tagsList.innerHTML = '';
+
+        editTags.forEach((tag, index) => {
+            const tagElem = document.createElement('div');
+            tagElem.className = 'tag-item';
+            tagElem.textContent = tag;
+
+            const btn = document.createElement('button');
+            btn.type = 'button';
+            btn.textContent = '×';
+            btn.title = 'Удалить тег';
+            btn.onclick = () => removeEditTag(index);
+
+            tagElem.appendChild(btn);
+            tagsList.appendChild(tagElem);
+        });
+    }
+
+    function prepareTagsForSubmit() {
+        const hiddenInput = document.getElementById('editTagsInput');
+        hiddenInput.value = editTags.join(',');
+    }
+
+    function filterEditPlaces() {
+        const searchInput = document.getElementById('editSearch').value.toLowerCase();
+        const placesContainer = document.getElementById('editPlacesContainer');
+        const placeCards = placesContainer.getElementsByClassName('place-card');
+
+        for (let i = 0; i < placeCards.length; i++) {
+            const placeName = placeCards[i].getAttribute('data-name').toLowerCase();
+            const placeDescription = placeCards[i].getAttribute('data-description').toLowerCase();
+
+            if (placeName.includes(searchInput) || placeDescription.includes(searchInput)) {
+                placeCards[i].style.display = '';
+            } else {
+                placeCards[i].style.display = 'none';
+            }
+        }
+    }
+
+    function togglePlaces(button) {
+        const places = button.nextElementSibling;
+        if (places.style.display === "none") {
+            places.style.display = "block";
+            button.textContent = "Скрыть места";
+        } else {
+            places.style.display = "none";
+            button.textContent = "Показать места";
+        }
+    }
+
+    function searchTours() {
+        const input = document.getElementById("searchInputMyExcursions").value.toLowerCase();
+        const cards = document.querySelectorAll(".my-excursion-card");
+
+        cards.forEach(card => {
+            const title = card.getAttribute("data-title");
+            const description = card.getAttribute("data-description");
+            const tags = card.getAttribute("data-tags");
+
+            if (title.includes(input) || description.includes(input) || tags.includes(input)) {
+                card.style.display = "";
+            } else {
+                card.style.display = "none";
+            }
+        });
+    }
+</script>

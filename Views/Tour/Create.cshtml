@@ -1,0 +1,160 @@
+﻿@{
+    Layout = "_Layout";
+    var places = ViewData["Places"] as List<AstrakhanExcursions.Models.Place>;
+    var userId = ViewData["UserId"];
+}
+
+<div class="form-container">
+    <h2 class="text-center">Создание экскурсии</h2>
+    <form action="Create" method="post" onsubmit="prepareTagsForSubmit()">
+        <input type="hidden" name="userId" value="@userId">
+        <div class="form-group">
+            <label for="title">Название</label>
+            <input type="text" class="form-control" id="title" name="title" placeholder="Введите название экскурсии" required value="@ViewData["Title"]">
+        </div>
+        <div class="form-group">
+            <label for="description">Описание</label>
+            <textarea class="form-control" id="description" name="description" placeholder="Введите описание экскурсии" required>@ViewData["Description"]</textarea>
+        </div>
+        <div class="form-group">
+            <label>Места для посещения</label>
+            <input type="text" id="search" class="form-control" placeholder="Поиск мест..." onkeyup="filterPlaces()">
+            <div class="places-container" id="placesContainer">
+                @foreach (var place in places)
+                {
+                    <div class="place-card" data-name="@place.Name" data-description="@place.Description">
+                        <img src="@Url.Content(place.ImageUrl)" alt="@place.Name">
+                        <div class="place-info">
+                            <h5>@place.Name</h5>
+                            <p>@place.Description</p>
+                        </div>
+                        <div class="checkbox-container">
+                            <input type="checkbox" name="selectedPlaceIds" value="@place.PlaceId">
+                        </div>
+                    </div>
+                }
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label for="tagInput">Добавить тег</label>
+            <div class="flex-gap-10">
+                <input type="text" id="tagInput" class="form-control" placeholder="Введите тег">
+                <button type="button" class="btn btn-secondary" onclick="addTag()">Добавить</button>
+            </div>
+            <div id="tagsList" class="tags-list"></div>
+
+        </div>
+
+        <input type="hidden" id="tagsInput" name="tagsInput" value="">
+        <button type="submit" class="btn btn-primary">Создать экскурсию</button>
+    </form>
+</div>
+
+<!-- Модальное окно результата операции -->
+<div id="resultOperation" class="modal">
+    <div class="modal-content">
+        <span class="close" onclick="closeResultOperation()">&times;</span>
+        <h2 id="resultOperationTitle"></h2>
+    </div>
+</div>
+
+<!-- Скрипт для инициализации модального окна результата операции  и его закрытия -->
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        var message = @Html.Raw(Newtonsoft.Json.JsonConvert.SerializeObject(ViewData["Message"] ?? ""));
+
+        if (message && message.trim().length > 0) {
+            document.getElementById('resultOperationTitle').textContent = message;
+            document.getElementById('resultOperation').style.display = 'block';
+        }
+    });
+    function closeResultOperation() {
+        document.getElementById('resultOperation').style.display = 'none';
+    }
+</script>
+
+<!-- Скрипт для передачи введенных тегов и их сохранении после вывода сообщения об операции -->
+<script>
+    let tags = [];
+
+    const existingTags = '@(ViewData["Tags"] ?? "")';
+    if (existingTags) {
+        tags = existingTags.split(',').map(t => t.trim().toLowerCase()).filter(t => t.length > 0);
+    }
+
+    function addTag() {
+        const input = document.getElementById('tagInput');
+        const tag = input.value.trim();
+
+        if (tag === '') {
+            alert('Введите тег');
+            return;
+        }
+
+        if (tags.includes(tag.toLowerCase())) {
+            input.value = '';
+            return;
+        }
+
+        tags.push(tag.toLowerCase());
+        input.value = '';
+        renderTags();
+    }
+
+    function removeTag(index) {
+        tags.splice(index, 1);
+        renderTags();
+    }
+
+    function renderTags() {
+        const tagsList = document.getElementById('tagsList');
+        tagsList.innerHTML = '';
+
+        tags.forEach((tag, index) => {
+            const tagElem = document.createElement('div');
+            tagElem.className = 'tag-item';
+            tagElem.textContent = tag;
+
+            const btn = document.createElement('button');
+            btn.type = 'button';
+            btn.textContent = '×';
+            btn.title = 'Удалить тег';
+            btn.onclick = () => removeTag(index);
+
+            tagElem.appendChild(btn);
+            tagsList.appendChild(tagElem);
+        });
+
+        document.getElementById('tagsInput').value = tags.join(',');
+    }
+
+    function prepareTagsForSubmit() {
+        document.getElementById('tagsInput').value = tags.join(',');
+    }
+    document.addEventListener('DOMContentLoaded', () => {
+        renderTags();
+    });
+</script>
+
+<!-- Скрипт для фильтрации мест (поиска) -->
+<script>
+    function filterPlaces() {
+        const searchInput = document.getElementById('search').value.toLowerCase();
+        const placesContainer = document.getElementById('placesContainer');
+        const placeCards = placesContainer.getElementsByClassName('place-card');
+
+        for (let i = 0; i < placeCards.length; i++) {
+            const placeName = placeCards[i].getAttribute('data-name').toLowerCase();
+            const placeDescription = placeCards[i].getAttribute('data-description').toLowerCase();
+
+            if (placeName.includes(searchInput) || placeDescription.includes(searchInput)) {
+                placeCards[i].style.display = ''; 
+            } else {
+                placeCards[i].style.display = 'none'; 
+            }
+        }
+    }
+
+</script>
+

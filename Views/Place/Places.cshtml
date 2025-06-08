@@ -1,0 +1,177 @@
+﻿@model List<AstrakhanExcursions.Models.Place>
+
+@{
+    Layout = "_Layout";
+    var userId = ViewData["UserId"];
+}
+
+<div class="form-container">
+    <h2 class="text-center">Места</h2>
+    <input type="text" id="searchInputMyExcursions" placeholder="Поиск по названию или описанию" onkeyup="searchPlaces()" class="form-control mb-3">
+
+    @if (Model != null && Model.Any())
+    {
+        foreach (var place in Model)
+        {
+            <div class="card my-place-card" data-id="@place.PlaceId" data-name="@place.Name.ToLower()" data-description="@place.Description.ToLower()" data-latitude="@place.Latitude" data-longitude="@place.Longitude">
+
+                <div class="card-body">
+                    <h5 class="card-title">@place.Name</h5>
+                    <p class="card-text">@place.Description</p>
+                    <img src="@Url.Content(place.ImageUrl)" alt="@place.Name" style="width: 100%; height: auto;">
+                    <button class="btn btn-primary" onclick="openEditModal(@place.PlaceId)">Редактировать</button>
+                    <button type="button" class="btn btn-danger" onclick="openDeleteModal(@place.PlaceId)">Удалить</button>
+                </div>
+            </div>
+        }
+    }
+    else
+    {
+        <p>Места не были созданы</p>
+    }
+</div>
+
+<!-- Модальное окно результата операции -->
+<div id="resultOperation" class="modal">
+    <div class="modal-content">
+        <span class="close" onclick="closeResultOperation()">&times;</span>
+        <h2 id="resultOperationTitle"></h2>
+    </div>
+</div>
+
+<!-- Модальное окно для редактирования места -->
+<div id="editModal" class="modalEdit">
+    <div class="modal-contentEdit">
+        <span class="close" onclick="closeEditModal()" style="position: absolute; top: 8px; right: 12px; font-size: 24px; font-weight: bold; cursor: pointer;">&times;</span>
+        <h2 id="editModalTitle" style="margin: 0; padding: 0; text-align: center;">Редактировать место</h2>
+        <form id="editForm" action="/Place/Edit" method="post" enctype="multipart/form-data">
+            <input type="hidden" name="userId" id="userId" value="@userId">
+            <input type="hidden" name="placeId" id="editPlaceId">
+            <div class="form-group">
+                <label for="editName">Название</label>
+                <input type="text" class="form-control" id="editName" name="Name" required>
+            </div>
+            <div class="form-group">
+                <label for="editDescription">Описание</label>
+                <textarea class="form-control" id="editDescription" name="Description" required></textarea>
+            </div>
+            <div class="form-group">
+                <label for="editLatitude">Широта</label>
+                <input type="text" class="form-control" id="editLatitude" name="Latitude" required pattern="^-?\d*(,\d*)?$" title="Введите корректное число (в качестве разделителя используется запятая)">
+            </div>
+            <div class="form-group">
+                <label for="editLongitude">Долгота</label>
+                <input type="text" class="form-control" id="editLongitude" name="Longitude" required pattern="^-?\d*(,\d*)?$" title="Введите корректное число (в качестве разделителя используется запятая)">
+            </div>
+            <div class="form-group">
+                <label for="editImage">Загрузка изображения</label>
+                <input type="file" class="form-control" id="editImage" name="Image" accept="image/jpeg, image/png">
+            </div>
+            <button type="submit" class="btn btn-primary">Сохранить изменения</button>
+        </form>
+    </div>
+</div>
+
+<!-- Модальное окно для удаления места -->
+<div id="deleteModal" class="modal">
+    <div class="modal-content">
+        <span class="close" onclick="closeDeleteModal()" style="position: absolute; top: 8px; right: 12px; font-size: 24px; font-weight: bold; cursor: pointer;">&times;</span>
+        <h2 id="deleteModalTitle">Вы уверены, что хотите удалить это место?</h2>
+        <button id="confirmDeleteButton" class="btn btn-danger">Подтвердить</button>
+    </div>
+</div>
+
+<!-- Скрипт для инициализации модального окна результата операции и его закрытия -->
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        var message = @Html.Raw(Newtonsoft.Json.JsonConvert.SerializeObject(TempData["Message"] ?? ""));
+        if (message && message.trim().length > 0) {
+            document.getElementById('resultOperationTitle').textContent = message;
+            document.getElementById('resultOperation').style.display = 'block';
+        }
+    });
+    function closeResultOperation() {
+        document.getElementById('resultOperation').style.display = 'none';
+    }
+
+    let placeIdToEdit;
+    let placeIdToDelete;
+    console.log(placeIdToEdit);
+    console.log(placeIdToDelete);
+
+    function openDeleteModal(placeId) {
+        placeIdToDelete = placeId;
+        document.getElementById("deleteModal").style.display = "block";
+    }
+
+    function closeDeleteModal() {
+        document.getElementById("deleteModal").style.display = "none";
+    }
+
+    document.getElementById("confirmDeleteButton").onclick = function () {
+        const form = document.createElement("form");
+        form.method = "post";
+        form.action = "/Place/Delete";
+
+        const inputId = document.createElement("input");
+        inputId.type = "hidden";
+        inputId.name = "id";
+        inputId.value = placeIdToDelete;
+        form.appendChild(inputId);
+
+        const inputUserId = document.createElement("input");
+        inputUserId.type = "hidden";
+        inputUserId.name = "userId";
+        inputUserId.value = @userId;
+        form.appendChild(inputUserId);
+
+        document.body.appendChild(form);
+        form.submit();
+    }
+</script>
+
+<!-- Код для открытия модального окна редактирования -->
+<script>
+
+    function openEditModal(placeId) {
+        console.log("openEditModal called with placeId:", placeId);
+        const placeCard = document.querySelector(`.my-place-card[data-id='${placeId}']`);
+        if (placeCard) {
+            const placeName = placeCard.querySelector('.card-title').textContent;
+            const placeDescription = placeCard.querySelector('.card-text').textContent;
+            const placeLatitude = placeCard.getAttribute('data-latitude');
+            const placeLongitude = placeCard.getAttribute('data-longitude');
+
+            document.getElementById('editPlaceId').value = placeId;
+            document.getElementById('editName').value = placeName;
+            document.getElementById('editDescription').value = placeDescription;
+            document.getElementById('editLatitude').value = placeLatitude;
+            document.getElementById('editLongitude').value = placeLongitude;
+
+            document.getElementById("editModal").style.display = "block";
+        }
+    }
+
+    function closeEditModal() {
+        document.getElementById("editModal").style.display = "none";
+    }
+</script>
+
+<script>
+    function searchPlaces() {
+        const input = document.getElementById('searchInputMyExcursions');
+        const filter = input.value.toLowerCase();
+        const cards = document.querySelectorAll('.my-place-card');
+
+        cards.forEach(card => {
+            const name = card.getAttribute('data-name');
+            const description = card.getAttribute('data-description');
+
+            if (name.includes(filter) || description.includes(filter)) {
+                card.style.display = ''; 
+            } else {
+                card.style.display = 'none'; 
+            }
+        });
+    }
+</script>

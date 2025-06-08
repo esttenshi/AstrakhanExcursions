@@ -1,0 +1,77 @@
+﻿@{
+    ViewData["Title"] = "Login";
+}
+
+<link rel="stylesheet" href="~/css/site.css" />
+
+<div class="login-container">
+    <div class="login-form">
+        <h2 class="text-center">Авторизация</h2>
+        <form asp-controller="Account" asp-action="Login" method="post">
+            <div class="form-group">
+                <label for="username">Логин</label>
+                <input type="email" class="form-control" id="username" name="username" placeholder="Введите email" required value="@ViewData["Email"]">
+            </div>
+            <div class="form-group">
+                <label for="password">Пароль</label>
+                <input type="password" class="form-control" id="password" name="password" placeholder="Введите пароль" quired>
+            </div>
+            <button type="submit" class="btn btn-primary">Войти</button>
+        </form>
+        <div class="register-link">
+            <p>Вы ещё не зарегистрированы? <a href="@Url.Action("Register", "Account")">Регистрация</a></p>
+        </div>
+    </div>
+    <style>
+        .text-center {
+            text-align: center;
+        }
+
+        .mb-4 {
+            margin-bottom: 1.5rem;
+        }
+
+        .register-link {
+            margin-top: 1rem;
+            text-align: center;
+        }
+
+            .register-link a {
+                color: #007bff;
+                text-decoration: underline;
+            }
+
+                .register-link a:hover {
+                    color: #0056b3;
+                }
+    </style>
+</div>
+
+<script>
+    const passwordInput = document.getElementById('password');
+    const emailInput = document.getElementById('username');
+
+    emailInput.addEventListener('input', function () {
+        emailInput.setCustomValidity('');
+    });
+
+    passwordInput.addEventListener('input', function () {
+        passwordInput.setCustomValidity('');
+    });
+</script>
+
+@if (ViewData["Message"] != null && ViewData["Message"].ToString().Contains("Пользователь с таким email не существует"))
+{
+    <script>
+        emailInput.setCustomValidity('Пользователь с таким email не существует');
+        emailInput.reportValidity();
+    </script>
+}
+
+@if (ViewData["Message"] != null && ViewData["Message"].ToString().Contains("Неверный пароль"))
+{
+    <script>
+        passwordInput.setCustomValidity('Неверный пароль');
+        passwordInput.reportValidity();
+    </script>
+}

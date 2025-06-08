@@ -1,0 +1,6 @@
+@AstrakhanExcursions_HostAddress = http://localhost:5254
+
+GET {{AstrakhanExcursions_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

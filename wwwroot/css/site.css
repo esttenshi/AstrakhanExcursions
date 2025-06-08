@@ -1,0 +1,530 @@
+﻿/* Общие стили */
+body {
+    font-family: 'Arial', sans-serif;
+    background-color: #f8f9fa;
+    margin: 0;
+    padding: 0;
+}
+
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+/* Стили для страницы авторизации */
+.login-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    background-color: #f8f9fa;
+}
+
+.login-form {
+    background-color: white;
+    padding: 30px;
+    border-radius: 10px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    width: 100%;
+    max-width: 400px;
+}
+
+    .login-form h2 {
+        margin-bottom: 20px;
+        text-align: center;
+    }
+
+/* Стили для карточек */
+.card {
+    border: 1px solid #ddd;
+    border-radius: 10px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    margin-bottom: 20px;
+}
+
+.card-title {
+    font-size: 1.5rem;
+    margin: 20px;
+}
+
+.card-text {
+    font-size: 1rem;
+    margin: 20px;
+}
+
+/* Стили для навигационной панели */
+.header-nav {
+    display: flex;
+    align-items: center;
+    padding: 15px 0;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    background-color: white;
+    height: 40px;
+    margin-left: -300px;
+}
+
+    .header-nav .btn-group {
+        display: flex;
+        width: 150%;
+    }
+
+        .header-nav .btn-group .btn {
+            margin: 0 5px;
+            border-radius: 5px;
+            padding: 10px;
+            text-align: center;
+        }
+
+            .header-nav .btn-group .btn:first-child {
+                margin-left: 0;
+            }
+
+            .header-nav .btn-group .btn:last-child {
+                margin-right: 0;
+            }
+
+/* Стили для центрирования содержимого */
+.text-center {
+    text-align: center;
+}
+
+.d-flex {
+    display: flex;
+}
+
+.justify-content-center {
+    justify-content: center;
+}
+
+.table-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin: 20px 0;
+}
+
+/* Стили для форм */
+.form-container {
+    background-color: white;
+    padding: 30px;
+    padding-right: 45px;
+    border-radius: 10px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    max-width: 600px;
+    margin: 0 auto;
+}
+
+.form-group {
+    margin-bottom: 20px;
+}
+
+    .form-group label {
+        font-weight: bold;
+        margin-bottom: 5px;
+        display: block;
+    }
+
+    .form-group input,
+    .form-group textarea,
+    .form-group select {
+        border: 1px solid #ddd;
+        border-radius: 5px;
+        padding: 10px;
+        width: 100%;
+        font-size: 16px;
+    }
+
+    .form-group textarea {
+        resize: vertical;
+        min-height: 100px;
+    }
+
+/* Стили для кнопок */
+.btn {
+    width: 100%;
+    padding: 10px 10px;
+    border-radius: 5px;
+    border: none;
+    color: white;
+    font-size: 16px;
+    cursor: pointer;
+    margin-top: 10px;
+    margin-left: 0px;
+}
+
+.btn-primary {
+    background-color: #5f85ad;
+}
+
+    .btn-primary:hover {
+        background-color: #3b5674;
+    }
+
+.btn-danger {
+    background-color: #dc3545;
+}
+
+    .btn-danger:hover {
+        background-color: #c82333;
+    }
+
+.btn-secondary {
+    margin: 0;
+    padding: 2px;
+    background-color: #617284;
+    border-color: #007bff;
+    color: white;
+}
+
+    .btn-secondary:hover {
+        background-color: #37516d;
+        border-color: #0056b3;
+    }
+
+/* Стили для кнопок в навигационной панели */
+.btn-outline-primary {
+    color: #5f85ad;
+}
+
+    .btn-outline-primary:hover {
+        background-color: #37516d;
+        color: white;
+    }
+
+.btn-outline-danger {
+    color: #dc3545;
+    border-color: #dc3545;
+}
+
+    .btn-outline-danger:hover {
+        background-color: #dc3545;
+        color: white;
+    }
+
+/* Стили для заголовков */
+h2.text-center {
+    margin-bottom: 20px;
+    color: #333;
+}
+
+/* Стили для карточек мест */
+.place-card {
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    padding: 15px;
+    margin-bottom: 15px;
+    display: flex;
+    align-items: center;
+    width: 95%;
+}
+
+    .place-card img {
+        width: 80px;
+        height: 80px;
+        object-fit: cover;
+        border-radius: 4px;
+        margin-right: 15px;
+    }
+
+.place-info h5 {
+    margin: 0 0 10px 0;
+}
+
+.place-info p {
+    margin: 0;
+    color: #666;
+}
+
+.checkbox-container {
+    display: flex;
+    align-items: center;
+    margin-left: auto;
+}
+
+.places-container {
+    max-height: 300px;
+    overflow-y: auto;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    padding: 10px;
+    margin-bottom: 15px;
+    width: calc(100%);
+}
+
+/* Стили для тегов */
+.tag-item {
+    display: inline-flex;
+    align-items: center;
+    background-color: #617284;
+    color: white;
+    padding: 5px 10px;
+    border-radius: 15px;
+    margin: 5px 5px 0 0;
+    font-size: 14px;
+}
+
+    .tag-item button {
+        background: transparent;
+        border: none;
+        color: white;
+        margin-left: 8px;
+        cursor: pointer;
+        font-weight: bold;
+        font-size: 16px;
+        line-height: 1;
+    }
+
+        .tag-item button:hover {
+            color: #ffdddd;
+        }
+
+/* Стили для карточек экскурсий */
+.tour-card {
+    border: 1px solid #ddd;
+    border-radius: 10px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    width: 250px;
+}
+
+    .tour-card .card-body {
+        padding: 10px;
+    }
+
+    .tour-card .card-title {
+        font-size: 1.5rem;
+        margin-bottom: 10px;
+    }
+
+    .tour-card .card-text {
+        margin-bottom: 10px;
+    }
+
+/* Стили для страницы маршрутов */
+.btn.btn-success.mt-3 {
+    background-color: #617284;
+    border-color: #007bff;
+    color: white;
+    width: 14%;
+    position: absolute;
+    top: 650px;
+    left: 35px;
+    height: 5%;
+    margin-bottom: 10px;
+}
+
+    .btn.btn-success.mt-3:hover {
+        background-color: #37516d;
+        border-color: #0056b3;
+    }
+
+select[multiple] {
+    height: auto;
+    min-height: 100px;
+}
+
+.scrollable-cards {
+    overflow-y: auto;
+}
+
+.map-column {
+    height: 85%;
+    width: 1200px;
+    position: absolute;
+    top: 90px;
+    left: 300px;
+}
+
+.scrollable-cards {
+    height: 78%;
+    position: absolute;
+    top: 80px;
+    left: 30px;
+}
+
+.tour-card.selected {
+    border: 2px solid #5f85ad;
+    background-color: #e9f7fa;
+}
+
+.tour-card.selected {
+    border: 2px solid #5f85ad;
+    background-color: #e9f7fa;
+}
+
+.tour-card {
+    transition: background-color 0.3s, border 0.3s;
+}
+
+#routeButton:disabled {
+    background-color: #ccc;
+    color: #666; /* Темно-серый текст */
+    border: 1px solid #aaa; /* Светло-серый бордер */
+    cursor: not-allowed; /* Курсор "нельзя" */
+}
+
+.my-excursion-card .card-body {
+    padding: 10px;
+}
+
+.my-excursion-card .card-title {
+    font-size: 1.5rem;
+    margin-bottom: 10px;
+}
+
+.my-excursion-card .card-text {
+    margin-bottom: 10px;
+}
+
+/* Стили для тегов */
+.my-excursion-tag-item {
+    display: inline-block;
+    background-color: #617284;
+    color: white;
+    padding: 5px 10px;
+    border-radius: 15px;
+    font-size: 14px;
+}
+
+/* Кнопка "Показать места" */
+.my-excursion-toggle-places {
+    margin-top: 10px;
+}
+
+/* Стили для мест */
+.my-excursion-places {
+    display: none; /* Изначально скрыто */
+}
+
+#searchInputMyExcursions {
+    width: 99%; /* Занимает 100% ширины родительского элемента */
+    height: 35px;
+    border-radius: 5px;
+    border: 1px solid #ccc;
+    /* Установите максимальную ширину, если необходимо */
+}
+
+#searchInput {
+    width: 97%;
+    height: 30px;
+    border-radius: 5px;
+    border: 1px solid #ccc;
+}
+
+/* Для ввода тега */
+.flex-gap-10 {
+    display: flex;
+    gap: 10px;
+    height: 30px;
+}
+
+/* Модальное окно */
+.modal {
+    display: none; /* скрыто по умолчанию */
+    position: fixed;
+    z-index: 150;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    background-color: rgba(0, 0, 0, 0.5);
+}
+
+/* Содержимое модального окна */
+.modal-content {
+    background-color: #fff;
+    margin: 10% auto;
+    padding: 20px;
+    margin-top: 250px;
+    border-radius: 8px;
+    width: 300px;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    height: 150px;
+    text-align: center;
+}
+
+/* Кнопка закрытия модального окна */
+.close {
+    position: absolute;
+    top: 8px;
+    right: 12px;
+    font-size: 24px;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+/* Список тегов */
+.tags-list {
+    margin-top: 10px;
+}
+
+/* Стили для модального окна редактирования экскурсии */
+.modalEdit {
+    display: none;
+    position: fixed;
+    z-index: 1050;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    background-color: rgba(0,0,0,0.5);
+}
+
+.modal-contentEdit {
+    background-color: #fff;
+    margin: 2% auto;
+    padding: 35px;
+    border-radius: 10px;
+    width: 60%;
+    max-width: 600px;
+    position: relative;
+}
+
+/* Стили для личного кабинета */
+.card .card-body {
+    padding: 20px;
+}
+
+#editEmailModal .modal-content {
+    height: 260px;
+    padding: 30px;
+}
+
+#editEmailForm {
+    width: 300px;
+    margin-right: 20px;
+}
+
+#editEmailModal .btn {
+    width: 107%;
+}
+
+#editEmailModal .modal-content .form-group label {
+    display: flex;
+    width: 100%;
+}
+
+#changePasswordModal .modal-content {
+    height: 260px;
+    padding: 30px;
+}
+
+#changePasswordForm {
+    width: 300px;
+    margin-right: 20px;
+}
+
+#changePasswordModal .btn {
+    width: 107%;
+}
+
+#changePasswordModal .modal-content .form-group label {
+    display: flex;
+    width: 100%;
+}

@@ -1,0 +1,17 @@
+﻿{
+  "ConnectionStrings": {
+    "DefaultConnection": "Server=localhost;Database=astrakhan_excursions;Trusted_Connection=True;TrustServerCertificate=True;"
+  },
+  "Logging": {
+    "LogLevel": {
+      "Default": "Information",
+      "Microsoft": "Warning",
+      "Microsoft.Hosting.Lifetime": "Information"
+    }
+  },
+  "AllowedHosts": "*",
+  "ApplicationUrls": {
+    "Http": "http://localhost:5254",
+    "Https": "https://localhost:7070"
+  }
+}

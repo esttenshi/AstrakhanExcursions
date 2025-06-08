@@ -1,0 +1,52 @@
+﻿@{
+    var userId = ViewData["UserId"]?.ToString() ?? "";
+}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="~/css/site.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jqgrid/4.6.0/css/ui.jqgrid.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jqgrid/4.6.0/js/i18n/grid.locale-en.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jqgrid/4.6.0/js/jquery.jqGrid.min.js"></script>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-light bg-light header-nav">
+        <div class="container">
+            <div class="btn-group w-100" role="group" aria-label="Navigation Buttons">
+                @if (!(userId == "0"))
+                {
+                    <!-- Показываем эти кнопки, если пользователь вошел в систему -->
+                    <a class="btn btn-outline-primary flex-fill" href="/User/PersonalAccount?userId=@userId">Личный кабинет</a>
+                    <a class="btn btn-outline-primary flex-fill" href="/Tour/Marshroutes?userId=@userId">Маршруты</a>
+                    <a class="btn btn-outline-primary flex-fill" href="/Tour/MyExcursions?userId=@userId">Мои экскурсии</a>
+                    <a class="btn btn-outline-primary flex-fill" href="/Tour/Create?userId=@userId">Создать экскурсию</a>
+                    @if (userId == "10")
+                    {
+                        <a class="btn btn-outline-primary flex-fill" href="/Place/Create?userId=@userId">Добавить место</a>
+                        <a class="btn btn-outline-primary flex-fill" href="/Place/Places?userId=@userId">Список мест</a>
+                    }
+                    <a class="btn btn-outline-danger flex-fill" href="/Account/Login">Выход</a>
+                }
+                else
+                {
+                    <!-- Показываем эти кнопки, если пользователь не вошел в систему -->
+                    <a class="btn btn-outline-primary flex-fill" href="/Account/Login">Вход</a>
+                    <a class="btn btn-outline-primary flex-fill" href="/Account/Register">Регистрация</a>
+                }
+            </div>
+        </div>
+    </nav>
+
+    <div class="container mt-4">
+        <main role="main" class="pb-3">
+            @RenderBody()
+        </main>
+    </div>
+    @RenderSection("Scripts", required: false)
+</body>
+</html>
